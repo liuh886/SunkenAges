@@ -2,7 +2,7 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
-const base = "/MuseumBelow/";
+const base = "/SunkenAges/";
 
 export default defineConfig({
   base,
@@ -21,13 +21,13 @@ export default defineConfig({
         id: base,
         name: "沉没纪元",
         short_name: "沉没纪元",
-        description: "在异星深海打捞文明证据，并通过博物馆展览重建一个世界的毁灭史。",
+        description: "在异星深海完成沉船打捞、证据推理与博物馆策展，追索一个文明的毁灭史。",
         lang: "zh-CN",
         start_url: base,
         scope: base,
         display: "standalone",
         orientation: "landscape-primary",
-        background_color: "#04161f",
+        background_color: "#031219",
         theme_color: "#061d27",
         categories: ["games", "entertainment", "education"],
         icons: [
