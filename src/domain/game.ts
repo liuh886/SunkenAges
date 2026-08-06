@@ -124,6 +124,7 @@ export interface LevelDefinition {
 }
 
 export const MINIMUM_EVIDENCE = 2;
+export const STRONG_EVIDENCE_CHAIN = 3;
 
 const SALT_ROUTE: LevelDefinition = {
   id: "salt-route",
@@ -365,8 +366,8 @@ const TIDEGATE: LevelDefinition = {
     ],
     gate: {
       x: 510,
-      top: 92,
-      bottom: 470,
+      top: 28,
+      bottom: 508,
       consoleX: 390,
       consoleY: 168,
     },
@@ -396,7 +397,8 @@ export function scoreExhibition(
 
   const validIds = new Set(level.evidence.map((item) => item.id));
   const evidenceCount = new Set(evidenceIds.filter((id) => validIds.has(id))).size;
-  const complete = evidenceCount === level.evidence.length;
+  const strongChainThreshold = Math.min(STRONG_EVIDENCE_CHAIN, level.evidence.length);
+  const complete = evidenceCount >= strongChainThreshold;
 
   return {
     title: rule.title,
