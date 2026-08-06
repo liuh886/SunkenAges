@@ -27,9 +27,11 @@ jobs:
         with:
           node-version: 22.12.0
           registry-url: https://registry.npmjs.org
+          cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Build production PWA
         run: npm run build
