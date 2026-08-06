@@ -1,0 +1,39 @@
+name: Generate lockfile
+
+on:
+  push:
+    branches: [feat/sunken-ages-pwa]
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v6
+        with:
+          ref: feat/sunken-ages-pwa
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+          registry-url: https://registry.npmjs.org
+
+      - name: Commit lockfile when missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if test -f package-lock.json; then
+            echo "package-lock.json already exists"
+            exit 0
+          fi
+          npm install --package-lock-only --no-audit --no-fund
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "build: lock npm dependencies"
+          git push origin HEAD:feat/sunken-ages-pwa
