@@ -1,0 +1,32 @@
+name: Validate static prototype
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check app.js
+          node --check prototype-fixes.js
+
+      - name: Smoke-test static assets
+        run: |
+          python3 -m http.server 4173 >/tmp/museum-below-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid' EXIT
+          sleep 1
+          curl --fail --silent http://127.0.0.1:4173/ | grep -q '潮下博物馆'
+          curl --fail --silent http://127.0.0.1:4173/styles.css >/dev/null
+          curl --fail --silent http://127.0.0.1:4173/app.js >/dev/null
+          curl --fail --silent http://127.0.0.1:4173/prototype-fixes.js >/dev/null
