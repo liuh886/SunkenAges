@@ -39,10 +39,22 @@ describe("campaign and curation rules", () => {
     expect(totalWeight).toBeGreaterThan(secondLevel.maxCargo);
   });
 
-  it("rewards the complete containment interpretation", () => {
-    const allEvidence = secondLevel.evidence.map((item) => item.id);
-    const outcome = scoreExhibition(secondLevel, "containment", allEvidence);
+  it("blocks the entire playable height until the Tidegate console is used", () => {
+    const gate = secondLevel.dive.gate;
 
+    expect(gate).toBeDefined();
+    expect(gate?.top).toBeLessThanOrEqual(28);
+    expect(gate?.bottom).toBeGreaterThanOrEqual(508);
+  });
+
+  it("rewards a reachable three-artifact containment chain", () => {
+    const evidence = secondLevel.evidence.slice(0, 3).map((item) => item.id);
+    const outcome = scoreExhibition(secondLevel, "containment", evidence);
+
+    expect(evidence.reduce((sum, id) => {
+      const item = secondLevel.evidence.find((candidate) => candidate.id === id);
+      return sum + (item?.weight ?? 0);
+    }, 0)).toBeLessThanOrEqual(secondLevel.maxCargo);
     expect(outcome.reputation).toBe(6);
     expect(outcome.nextLead).toBe("深渊脉冲源");
   });
