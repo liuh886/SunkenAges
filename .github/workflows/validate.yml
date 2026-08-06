@@ -16,7 +16,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check JavaScript syntax
-        run: node --check app.js
+        run: |
+          node --check app.js
+          node --check prototype-fixes.js
 
       - name: Smoke-test static assets
         run: |
@@ -27,3 +29,4 @@ jobs:
           curl --fail --silent http://127.0.0.1:4173/ | grep -q '潮下博物馆'
           curl --fail --silent http://127.0.0.1:4173/styles.css >/dev/null
           curl --fail --silent http://127.0.0.1:4173/app.js >/dev/null
+          curl --fail --silent http://127.0.0.1:4173/prototype-fixes.js >/dev/null
