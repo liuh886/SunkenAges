@@ -25,16 +25,11 @@ jobs:
         with:
           node-version: 22.12.0
           registry-url: https://registry.npmjs.org
+          cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-
-      - name: Export lockfile
-        uses: actions/upload-artifact@v4
-        with:
-          name: package-lock
-          path: package-lock.json
-          retention-days: 1
+        run: npm ci --no-audit --no-fund
 
       - name: Typecheck
         run: npm run typecheck
