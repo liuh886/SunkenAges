@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+          registry-url: https://registry.npmjs.org
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test domain rules
+        run: npm run test
+
+      - name: Build production PWA
+        run: npm run build
+
+      - name: Verify installable artifacts
+        run: |
+          test -f dist/index.html
+          test -f dist/manifest.webmanifest
+          test -f dist/sw.js
+          test -f dist/pwa-192x192.svg
+          test -f dist/pwa-512x512.svg
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs'
+          const manifest = JSON.parse(readFileSync('dist/manifest.webmanifest', 'utf8'))
+          if (manifest.name !== '沉没纪元') throw new Error('Unexpected PWA name')
+          if (manifest.display !== 'standalone') throw new Error('PWA must use standalone display')
+          if (!manifest.icons?.some((icon) => icon.sizes === '512x512')) {
+            throw new Error('Missing 512px application icon')
+          }
+          NODE
