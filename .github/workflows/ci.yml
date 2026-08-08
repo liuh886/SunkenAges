@@ -40,6 +40,8 @@ jobs:
         run: npm test
 
       - name: Build production PWA
+        env:
+          VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN || '' }}
         run: npm run build
 
       - name: Verify installable artifacts
@@ -60,7 +62,7 @@ jobs:
           NODE
 
       - name: Install browser-smoke runner
-        run: npm install --no-save --ignore-scripts --no-audit --no-fund @playwright/test@1.61.1
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @playwright/test@1.61.1
 
       - name: Start validated preview
         run: |
