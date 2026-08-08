@@ -1,6 +1,7 @@
 import { chromium } from '@playwright/test';
 
 const executablePath = process.env.CHROME_BIN;
+const appUrl = process.env.APP_URL || 'http://127.0.0.1:4173/SunkenAges/';
 if (!executablePath) throw new Error('CHROME_BIN is required for browser smoke.');
 
 const browser = await chromium.launch({
@@ -14,7 +15,7 @@ try {
   const runtimeErrors = [];
   page.on('pageerror', (error) => runtimeErrors.push(error.message));
 
-  await page.goto('http://127.0.0.1:4173/', { waitUntil: 'networkidle' });
+  await page.goto(appUrl, { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: /潮门避难站/ }).click();
   await page.getByText('潮门站可直接体验').waitFor();
   await page.getByRole('button', { name: /开始第 2 关/ }).click();
@@ -23,7 +24,7 @@ try {
   await page.locator('.briefing-screen').waitFor({ state: 'visible' });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.reload({ waitUntil: 'networkidle' });
+  await page.goto(appUrl, { waitUntil: 'networkidle' });
   const fitsViewport = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
   if (!fitsViewport) throw new Error('Mobile layout overflows horizontally.');
 
