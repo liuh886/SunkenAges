@@ -40,6 +40,8 @@ jobs:
         run: npm test
 
       - name: Build production PWA
+        env:
+          VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN || '' }}
         run: npm run build
 
       - name: Verify installable artifacts
@@ -58,6 +60,30 @@ jobs:
             throw new Error('Missing 512px application icon')
           }
           NODE
+
+      - name: Install browser-smoke runner
+        run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund @playwright/test@1.61.1
+
+      - name: Start validated preview
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/sunken-ages-preview.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/SunkenAges/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/sunken-ages-preview.log
+          exit 1
+
+      - name: Browser acceptance smoke
+        env:
+          APP_URL: http://127.0.0.1:4173/SunkenAges/
+        run: |
+          CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          export CHROME_BIN
+          node tests/browser-smoke.mjs
 
       - name: Configure GitHub Pages
         if: github.event_name != 'pull_request'
