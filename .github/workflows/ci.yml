@@ -59,6 +59,28 @@ jobs:
           }
           NODE
 
+      - name: Install browser-smoke runner
+        run: npm install --no-save --ignore-scripts --no-audit --no-fund @playwright/test@1.61.1
+
+      - name: Start validated preview
+        run: |
+          python3 -m http.server 4173 --directory dist > /tmp/sunken-ages-preview.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/sunken-ages-preview.log
+          exit 1
+
+      - name: Browser acceptance smoke
+        run: |
+          CHROME_BIN="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          test -n "$CHROME_BIN"
+          export CHROME_BIN
+          node tests/browser-smoke.mjs
+
       - name: Configure GitHub Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v6
